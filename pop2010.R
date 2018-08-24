@@ -8,10 +8,10 @@ key =Sys.getenv("CENSUS_API_KEY")
 vintage = 2010
 variable = "P0010001"
 name = "sf1"
-region = "block group:*"
+region = "block group"
 
 
-luc2010pop <- get_decennial(geography = "block group",
+luc2010pop <- get_decennial(geography = region,
                             variables = variable,
                             year = vintage,
                             state = "39",
@@ -19,7 +19,7 @@ luc2010pop <- get_decennial(geography = "block group",
                             key = key,
                             geometry = TRUE)
 
-woo2010pop <- get_decennial(geography = "block group",
+woo2010pop <- get_decennial(geography = region,
                             variables = variable,
                             year = vintage,
                             state = "39",
@@ -27,7 +27,7 @@ woo2010pop <- get_decennial(geography = "block group",
                             key = key,
                             geometry = TRUE)
 
-mon2010pop <- get_decennial(geography = "block group",
+mon2010pop <- get_decennial(geography = region,
                             variables = variable,
                             year = vintage,
                             state = "26",
