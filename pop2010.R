@@ -3,10 +3,12 @@ library(tidyverse)
 library(censusapi)
 library(tigris)
 library(tmap)
+library(sf)
+library(lwgeom)
 #census_api_key('b7da053b9e664586b9e559dba9e73780602f0aab')
 key =Sys.getenv("CENSUS_API_KEY")
 vintage = 2010
-variable = "P0010001"
+variable = "P001001"
 name = "sf1"
 region = "block group"
 
@@ -48,12 +50,24 @@ tmacog2010pop <- rbind(luc2010pop,woo2010pop,mon2010pop)
 tmacog2010features <- rbind_tigris(block_groups("OH",county = c("Lucas","Wood"),year = 2010,cb = TRUE),
                                    mon2010features
                                    )
+tmacog2010pop <- tmacog2010pop %>%
+  mutate(sq_mi = (st_area(geometry)/2589988)) %>%
+  mutate(pop_density = round(as.double(P0010001/sq_mi)))
 
-tm_shape(tmacog2010pop) +tm_fill("P0010001",style = "quantile", n = 5, palette = "Purples",title = "Population")+
+tm_shape(tmacog2010pop, projection = 3734, unit = "mi") +
+  tm_polygons("pop_density", 
+              breaks = c(-Inf,500,1000,5000,10000,Inf), 
+              palette = "Purples",
+              title ="Persons per \nSquare Mile")+
   tm_layout(bg.color = "ivory",
-            title = "TMACOG Region Population Density 2010\nby Census Block Group",
+            title = "2010 Population Density by Census Block Group 
+            Lucas, Monroe, and Wood Counties",
             title.position = c("center","top"), title.size = 1.1,
-            legend.position = c(0.8,0), legend.text.size = 0.75,
-            legend.width = 0.2)+
-  tm_scale_bar()+
-  tm_credits(("Data source: US Census Bureau"))
+            legend.position = c("right","center"), legend.text.size = 0.75,
+            legend.width = 0.25,
+            inner.margins = c(0.1,0.1,0.1,0.1)
+  )+
+  tm_scale_bar(width = .2)+
+  tm_compass(type = "4star", position = c("right","top"))+
+  tm_credits(text = "Data source: US Census Bureau \nDate: 10/04/2018", 
+             align = "right")
