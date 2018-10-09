@@ -5,6 +5,7 @@ library(tigris)
 library(tmap)
 library(sf)
 library(lwgeom)
+library(rgdal)
 census_api_key('b7da053b9e664586b9e559dba9e73780602f0aab')
 key =Sys.getenv("CENSUS_API_KEY")
 vintage = 1990
@@ -12,7 +13,9 @@ variable = "P0010001"
 name = "sf1"
 region = "tract"
 # note the census api has an issue with block groups for the time being for the 1990 vintage
-
+dsn <- "C:/Users/fullerm/Documents/TIMS/tims_gdb_datasets_20170314-1110/Road Inventory.gdb/Output.gdb"
+roads <-  readOGR(dsn,"Road_Inventory")
+luc_woo_roads <- roads[(roads$COUNTY_CD == "LUC" | roads$COUNTY_CD =="WOO") & roads$FUNCTION_CLASS < 4, ]
 
 
 luc1990pop <- get_decennial(geography = region,
@@ -58,6 +61,8 @@ tm_shape(tmacog1990pop, projection = 3734, unit = "mi") +
               breaks = c(-Inf,500,1000,5000,10000,Inf), 
               palette = "Purples",
               title ="Persons per \nSquare Mile")+
+  tm_shape(luc_woo_roads, projection =  3734)+
+  tm_lines(col = 'black')+
   tm_layout(bg.color = "ivory",
             title = "1990 Population Density by Census Block Group 
             Lucas, Monroe, and Wood Counties",

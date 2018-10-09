@@ -4,12 +4,17 @@ library(censusapi)
 library(tmap)
 library(sf)
 library(lwgeom)
+library(gdal)
 #census_api_key('b7da053b9e664586b9e559dba9e73780602f0aab')
 key =Sys.getenv("CENSUS_API_KEY")
 vintage = 2000
 variable = "P001001"
 name = "sf1"
 region = "block group"
+dsn <- "C:/Users/fullerm/Documents/TIMS/tims_gdb_datasets_20170314-1110/Road Inventory.gdb/Output.gdb"
+roads <-  readOGR(dsn,"Road_Inventory")
+luc_woo_roads <- roads[(roads$COUNTY_CD == "LUC" | roads$COUNTY_CD =="WOO") & roads$FUNCTION_CLASS < 4, ]
+
 
 
 luc2000pop <- get_decennial(geography = region,
@@ -55,7 +60,8 @@ tm_shape(tmacog2000pop, projection = 3734, unit = "mi") +
     breaks = c(-Inf,500,1000,5000,10000,Inf),
     palette = "Purples", 
     title = "Persons per Square Mile")+
-  
+  tm_shape(luc_woo_roads, projection =  3734)+
+  tm_lines(col = 'black')+
   tm_layout(bg.color = "ivory",
             title = "2000 Population Density by Census Block Group 
             Lucas, Monroe, and Wood Counties",
